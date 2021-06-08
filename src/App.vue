@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import NewTodo from './components/NewTodo.vue';
 import TodoList from './components/TodoList.vue';
 import Todo from './models/Todo';
@@ -19,21 +19,17 @@ import Todo from './models/Todo';
   components: {
     NewTodo,
     TodoList
-  },
-  watch: {
-    list :{
-      handler: function(newValue){
-        let list = JSON.stringify(newValue)
-        localStorage.setItem('todolist', list)
-      },
-      deep: true
-    }
-   
   }
-
 })
 export default class App extends Vue {
   list: Array<Todo> = localStorage.getItem('todolist') ? JSON.parse(<string>localStorage.getItem('todolist')) : []  //这里用了断言，断言它肯定会返回字符串的
+
+  @Watch('list', {deep: true})
+  onListChanged(newValue: Array<Todo>){
+    let list = JSON.stringify(newValue)
+    localStorage.setItem('todolist', list)
+  }
+  
   addTodo(name: String){
     let newTodo: Todo = {name, status: 'todo'}
     this.list.push(newTodo)
